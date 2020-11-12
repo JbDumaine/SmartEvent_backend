@@ -63,7 +63,7 @@ class Event
      **************************************************************************************/
 
     /**
-     * @ORM\ManyToOne(targetEntity="User::class", inversedBy="organizedEvents")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="organizedEvents")
      *
      * @Assert\NotBlank()
      * @Assert\Valid()
@@ -71,7 +71,7 @@ class Event
     private User $organizer;
 
     /**
-     * @ORM\ManyToOne(targetEntity="EventType::class")
+     * @ORM\ManyToOne(targetEntity="EventType")
      *
      * @Assert\NotBlank()
      * @Assert\Valid()
@@ -79,7 +79,7 @@ class Event
     private EventType $type;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Item::class")
+     * @ORM\ManyToMany(targetEntity="Item")
      * @ORM\JoinTable(name="events_items",
      *      joinColumns={@ORM\JoinColumn(name="event_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="item_id", referencedColumnName="id")}

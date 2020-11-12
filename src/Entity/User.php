@@ -98,7 +98,7 @@ class User implements UserInterface
 
     /**
      * Contacts de l'utilisateur qui sont aussi des utilisateurs.
-     * @ORM\ManyToMany(targetEntity="User::class")
+     * @ORM\ManyToMany(targetEntity="User")
      * @ORM\JoinTable(name="contacts",
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="contact_id", referencedColumnName="id")}
