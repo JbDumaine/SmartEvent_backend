@@ -16,23 +16,47 @@ class User implements UserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      */
-    private $email;
+    private string $email;
 
     /**
      * @ORM\Column(type="json")
      */
-    private $roles = [];
+    private array $roles = [];
 
     /**
-     * @var string The hashed password
      * @ORM\Column(type="string")
      */
-    private $password;
+    private string $password;
+
+    /**
+    * @ORM\Column(type="string", unique=true, nullable=true)
+    */
+    private string $apiToken;
+
+    /**
+     * @ORM\Column(name="first_name", type="string", length=50)
+     */
+    private string $firstName;
+
+    /**
+     * @ORM\Column(name="last_name", type="string", length=100)
+     */
+    private string $lastName;
+
+    /**
+     * @ORM\Column(name="phone_number", type="string", length=15)
+     */
+    private string $phoneNumber;
+
+    /**
+     * @ORM\Column(name="avatar_path", type="string", length=255, nullable=true)
+     */
+    private string $avatarPath;
 
     public function getId(): ?int
     {
@@ -93,6 +117,79 @@ class User implements UserInterface
         $this->password = $password;
 
         return $this;
+    }
+    public function getApiToken(): string
+    {
+        return $this->apiToken;
+    }
+
+    public function setApiToken(string $apiToken): void
+    {
+        $this->apiToken = $apiToken;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
+
+    /**
+     * @param string $firstName
+     */
+    public function setFirstName(string $firstName): void
+    {
+        $this->firstName = $firstName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastName(): string
+    {
+        return $this->lastName;
+    }
+
+    /**
+     * @param string $lastName
+     */
+    public function setLastName(string $lastName): void
+    {
+        $this->lastName = $lastName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhoneNumber(): string
+    {
+        return $this->phoneNumber;
+    }
+
+    /**
+     * @param string $phoneNumber
+     */
+    public function setPhoneNumber(string $phoneNumber): void
+    {
+        $this->phoneNumber = $phoneNumber;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAvatarPath(): string
+    {
+        return $this->avatarPath;
+    }
+
+    /**
+     * @param string $avatarPath
+     */
+    public function setAvatarPath(string $avatarPath): void
+    {
+        $this->avatarPath = $avatarPath;
     }
 
     /**
