@@ -3,8 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -20,6 +23,9 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     *
+     * @Assert\NotBlank()
+     * @Assert\Length(min=2, max=180)
      */
     private string $email;
 
@@ -29,7 +35,10 @@ class User implements UserInterface
     private array $roles = [];
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", length=180)
+     *
+     * @Assert\NotBlank()
+     * @Assert\Length(min=2, max=180)
      */
     private string $password;
 
@@ -40,23 +49,71 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(name="first_name", type="string", length=50)
+     *
+     * @Assert\NotBlank()
+     * @Assert\Length(min=2, max=50)
      */
     private string $firstName;
 
     /**
      * @ORM\Column(name="last_name", type="string", length=100)
+     *
+     * @Assert\NotBlank()
+     * @Assert\Length(min=2, max=100)
      */
     private string $lastName;
 
     /**
      * @ORM\Column(name="phone_number", type="string", length=15)
+     *
+     * @Assert\NotBlank()
+     * @Assert\Length(min=2, max=15)
      */
     private string $phoneNumber;
 
     /**
      * @ORM\Column(name="avatar_path", type="string", length=255, nullable=true)
+     *
+     * @Assert\Length(min=2, max=255)
      */
     private string $avatarPath;
+
+    /***************************************************************************************
+     * Relations avec les autres entités
+     **************************************************************************************/
+
+    /**
+     * Evènement organisé par l'utilisateur.
+     *
+     * @ORM\OneToMany(targetEntity="Event", mappedBy="organizer", cascade={"remove"}, orphanRemoval=true)
+     */
+    private Collection $organizedEvents;
+
+    /**
+     * Invitation reçu par l'utilisateur
+     *
+     * @ORM\OneToMany(targetEntity=Invitation::class, mappedBy="guest", cascade={"remove"}, orphanRemoval=true)
+     */
+    private Collection $invitations;
+
+    /**
+     * Contacts de l'utilisateur qui sont aussi des utilisateurs.
+     * @ORM\ManyToMany(targetEntity="User")
+     * @ORM\JoinTable(name="contacts",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="contact_id", referencedColumnName="id")}
+     *      )
+     *
+     * @Assert\Valid()
+     */
+    private Collection $contacts;
+
+    public function __construct()
+    {
+        $this->organizedEvents = new ArrayCollection();
+        $this->invitations = new ArrayCollection();
+        $this->contacts = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -128,68 +185,112 @@ class User implements UserInterface
         $this->apiToken = $apiToken;
     }
 
-    /**
-     * @return string
-     */
     public function getFirstName(): string
     {
         return $this->firstName;
     }
 
-    /**
-     * @param string $firstName
-     */
     public function setFirstName(string $firstName): void
     {
         $this->firstName = $firstName;
     }
 
-    /**
-     * @return string
-     */
     public function getLastName(): string
     {
         return $this->lastName;
     }
 
-    /**
-     * @param string $lastName
-     */
     public function setLastName(string $lastName): void
     {
         $this->lastName = $lastName;
     }
 
-    /**
-     * @return string
-     */
     public function getPhoneNumber(): string
     {
         return $this->phoneNumber;
     }
 
-    /**
-     * @param string $phoneNumber
-     */
     public function setPhoneNumber(string $phoneNumber): void
     {
         $this->phoneNumber = $phoneNumber;
     }
 
-    /**
-     * @return string
-     */
     public function getAvatarPath(): string
     {
         return $this->avatarPath;
     }
 
-    /**
-     * @param string $avatarPath
-     */
     public function setAvatarPath(string $avatarPath): void
     {
         $this->avatarPath = $avatarPath;
+    }
+
+    public function getOrganizedEvents(): Collection
+    {
+        return $this->organizedEvents;
+    }
+
+    public function addOrganizedEvent(Event $event): void
+    {
+        if (!$this->organizedEvents->contains($event)) {
+            $this->organizedEvents[] = $event;
+            $event->setOrganizer($this);
+        }
+    }
+
+    public function removeOrganizedEvent(Event $event): void
+    {
+        if ($this->organizedEvents->contains($event)) {
+            $this->organizedEvents->removeElement($event);
+        }
+
+    }
+
+    public function getInvitations(): Collection
+    {
+        return $this->invitations;
+    }
+
+    public function addInvitation(Invitation $invitation): self
+    {
+        if (!$this->invitations->contains($invitation)) {
+            $this->invitations[] = $invitation;
+            $invitation->setGuest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInvitation(Invitation $invitation): self
+    {
+        if ($this->invitations->contains($invitation)) {
+            $this->invitations->removeElement($invitation);
+        }
+
+        return $this;
+    }
+
+    public function getContacts(): Collection
+    {
+        return $this->contacts;
+    }
+
+    public function addContact(User $contact): self
+    {
+        if (!$this->contacts->contains($contact)) {
+            $this->contacts[] = $contact;
+        }
+
+        return $this;
+    }
+
+    public function removeContact(User $contact): self
+    {
+        if ($this->contacts->contains($contact)) {
+            $this->contacts->removeElement($contact);
+        }
+
+        return $this;
     }
 
     /**
