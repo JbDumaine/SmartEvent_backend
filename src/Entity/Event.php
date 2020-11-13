@@ -7,6 +7,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,6 +19,8 @@ class Event
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     *
+     * @Groups("event:read")
      */
     private int $id;
 
@@ -26,6 +29,8 @@ class Event
      *
      * @Assert\NotBlank()
      * @Assert\Length(min=2, max=255)
+     *
+     * @Groups("event:read")
      */
     private string $title;
 
@@ -33,7 +38,8 @@ class Event
      * @ORM\Column(name="event_date", type="datetime")
      *
      * @Assert\NotBlank()
-     * @Assert\DateTime()
+     *
+     * @Groups("event:read")
      */
     private DateTime $eventDate;
 
@@ -41,6 +47,8 @@ class Event
      * @ORM\Column(name="event_description", type="text")
      *
      * @Assert\NotBlank()
+     *
+     * @Groups("event:read")
      */
     private string $description;
 
@@ -48,6 +56,8 @@ class Event
      * @ORM\Column(name="picture_path", type="string", length=255, nullable=true)
      *
      * @Assert\Length(min=2, max=255)
+     *
+     * @Groups("event:read")
      */
     private ?string $picturePath;
 
@@ -55,6 +65,8 @@ class Event
      * @ORM\Column(name="event_address", type="text")
      *
      * @Assert\NotBlank()
+     *
+     * @Groups("event:read")
      */
     private string $address;
 
@@ -67,6 +79,8 @@ class Event
      *
      * @Assert\NotBlank()
      * @Assert\Valid()
+     *
+     * @Groups("event:read")
      */
     private User $organizer;
 
@@ -75,28 +89,27 @@ class Event
      *
      * @Assert\NotBlank()
      * @Assert\Valid()
+     *
+     * @Groups("event:read")
      */
     private EventType $type;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Item")
-     * @ORM\JoinTable(name="events_items",
-     *      joinColumns={@ORM\JoinColumn(name="event_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="item_id", referencedColumnName="id")}
-     *      )
-     */
-    private Collection $items;
-
-    /**
      * Invitation de l'évènement
      *
-     * @ORM\OneToMany(targetEntity=Invitation::class, mappedBy="event", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Invitation::class, mappedBy="event", cascade={"remove"}, orphanRemoval=true)
      */
     private Collection $invitations;
 
+    /**
+     * @ORM\OneToMany(targetEntity=EventsItems::class, mappedBy="event", orphanRemoval=true)
+     */
+    private $items;
+
     public function __construct() {
-        $this->items = new ArrayCollection();
+        $this->picturePath = null;
         $this->invitations = new ArrayCollection();
+        $this->items = new ArrayCollection();
     }
 
     public function getId(): int
@@ -184,26 +197,6 @@ class Event
         $this->type = $type;
     }
 
-    public function getItems(): Collection
-    {
-        return $this->items;
-    }
-
-    public function addItem(Item $item): void
-    {
-        if (!$this->items->contains($item)) {
-            $this->items[] = $item;
-        }
-
-    }
-
-    public function removeItem(Item $item): void
-    {
-        if ($this->items->contains($item)) {
-            $this->items->removeElement($item);
-        }
-    }
-
     public function getInvitations(): Collection
     {
         return $this->invitations;
@@ -225,6 +218,36 @@ class Event
             $this->invitations->removeElement($invitation);
             // set the owning side to null (unless already changed)
             $invitation->delete();
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EventsItems[]
+     */
+    public function getItems(): Collection
+    {
+        return $this->items;
+    }
+
+    public function addItem(EventsItems $eventItem): self
+    {
+        if (!$this->items->contains($eventItem)) {
+            $this->items[] = $eventItem;
+            $eventItem->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeItem(EventsItems $eventItem): self
+    {
+        if ($this->items->removeElement($eventItem)) {
+            // set the owning side to null (unless already changed)
+            if ($eventItem->getEvent() === $this) {
+                $eventItem->delete();
+            }
         }
 
         return $this;
