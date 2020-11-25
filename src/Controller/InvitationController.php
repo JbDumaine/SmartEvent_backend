@@ -110,7 +110,7 @@ class InvitationController extends AbstractController
                 ->from('genjystudio@gmail.com')
                 ->to($userEmail)
                 ->subject('Test GenjyStudio!')
-                ->text('Voici le lien : http://localhost:8000/invitation/' . $invitationToken);
+                ->text('Voici le lien : http://smartevent-api.tk/invitation/' . $invitationToken);
             try {
                 $mailer->send($email);
             } catch (TransportExceptionInterface $e) {

@@ -67,6 +67,16 @@ class Invitation
      */
     private string $invitationToken;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     *
+     * @Assert\NotBlank
+     * @Assert\Length(min=2, max=255)
+     *
+     * @Groups({"invitation:read"})
+     */
+    private string $firstName;
+
     public function getId(): int
     {
         return $this->id;
@@ -126,5 +136,15 @@ class Invitation
         $this->invitationToken = $invitationToken;
 
         return $this;
+    }
+
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): void
+    {
+        $this->firstName = $firstName;
     }
 }
