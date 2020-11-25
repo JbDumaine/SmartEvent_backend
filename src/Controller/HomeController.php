@@ -26,7 +26,6 @@ class HomeController extends AbstractController
     /**
      * @Route("/", name="home")
      *
-     * @IsGranted("ROLE_USER")
      */
     public function index(): Response
     {
@@ -44,7 +43,7 @@ class HomeController extends AbstractController
 
         $jsonEvent = $serializer->serialize($event, 'json');*/
 
-        return $this->json('connecté');
+        return $this->json('SmartEvent marche !');
     }
 
     /**
