@@ -11,9 +11,13 @@ use App\Repository\StatusRepository;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -26,11 +30,20 @@ class InvitationController extends AbstractController
      */
     public function all(int $id, InvitationRepository $invitationRepository, EventRepository $eventRepository): Response
     {
-        return $this->json($invitationRepository->findBy(['event' => $eventRepository->find($id)]), 200, [], ['groups' => 'invitation:read']);
+        if (!$invitations = $invitationRepository->findBy(['event' => $eventRepository->findOneBy([
+            'id' => $id,
+            'organizer' => $this->getUser()->getId()
+        ])])) {
+            return $this->json([
+                'status' => 404,
+                'message' => 'Event not found'
+            ], 404);
+        }
+        return $this->json($invitations, 200, [], ['groups' => 'invitation:read']);
     }
 
     /**
-     * @Route("/api/invitation/{token}", name="api_invitation_get_invitation", methods={"GET"})
+     * @Route("/invitation/{token}", name="api_invitation_get_invitation", methods={"GET"})
      */
     public function getEventByToken(string $token, InvitationRepository $invitationRepository): Response
     {
@@ -47,7 +60,7 @@ class InvitationController extends AbstractController
     /**
      * @Route("/api/invitation", name="api_invitation_create", methods={"POST"})
      */
-    public function create(Request $request, SerializerInterface $serializer, EventRepository $eventRepository, UserRepository $userRepository, StatusRepository $statusRepository, EntityManagerInterface $entityManager, ValidatorInterface $validator)
+    public function create(Request $request, SerializerInterface $serializer, EventRepository $eventRepository, UserRepository $userRepository, StatusRepository $statusRepository, EntityManagerInterface $entityManager, ValidatorInterface $validator, MailerInterface $mailer)
     {
 
         $jsonGet = $request->getContent();
@@ -55,11 +68,27 @@ class InvitationController extends AbstractController
         try {
             $invitation = $serializer->deserialize($jsonGet, Invitation::class, 'json');
 
-            $invitation->setEvent($eventRepository->find(json_decode($jsonGet)->event));
-            if (json_decode($jsonGet)->user) {
-                $invitation->setGuest($userRepository->find(json_decode($jsonGet)->user));
+            $eventId = json_decode($jsonGet)->event;
+
+            $userEmail = json_decode($jsonGet)->email;
+
+            $key = 'example_key';
+            $payload = [
+                "user" => $userEmail,
+                "event" => $eventId
+            ];
+
+            $invitationToken = JWT::encode($payload, $key);
+
+            $invitation->setEvent($eventRepository->find($eventId));
+
+            if (isset(json_decode($userId = $jsonGet)->user)) {
+                $invitation->setGuest($userRepository->find($userId));
             }
+
             $invitation->setStatus($statusRepository->find(1));
+
+            $invitation->setInvitationToken($invitationToken);
 
             $errors = $validator->validate($invitation);
 
@@ -75,6 +104,17 @@ class InvitationController extends AbstractController
                     'status' => 400,
                     'message' => $e->getMessage()
                 ], 400);
+            }
+
+            $email = (new Email())
+                ->from('genjystudio@gmail.com')
+                ->to($userEmail)
+                ->subject('Test GenjyStudio!')
+                ->text('Voici le lien : http://localhost:8000/invitation/' . $invitationToken);
+            try {
+                $mailer->send($email);
+            } catch (TransportExceptionInterface $e) {
+                return $this->json($e->getMessage());
             }
 
             return $this->json($invitation, 201, [], ['groups' => 'invitation:read']);

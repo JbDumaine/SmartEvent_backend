@@ -19,10 +19,9 @@ class EventController extends AbstractController
     /**
      * @Route("/api/event", name="api_event_index", methods={"GET"})
      */
-    public function all(EventRepository $eventRepository): Response
+    public function all(): Response
     {
-        // return $this->json($this->getUser()->getOrganizedEvents(), 200, [], ['groups' => 'event:read']);
-        return $this->json($eventRepository->findAll(), 200, [], ['groups' => 'event:read']);
+        return $this->json($this->getUser()->getOrganizedEvents(), 200, [], ['groups' => 'event:read']);
     }
 
     /**
@@ -30,10 +29,10 @@ class EventController extends AbstractController
      */
     public function getEvent(int $id, EventRepository $eventRepository): Response
     {
-        if (!$event = $eventRepository->find($id)/*$eventRepository->findBy(
-            ['id' => $id],
-            ['organizer' => $this->getUser()->getId()]
-        )*/) {
+        if (!$event = $eventRepository->findOneBy([
+            'id' => $id,
+            'organizer' => $this->getUser()->getId()
+        ])) {
             return $this->json([
                 'status' => 404,
                 'message' => 'Event not found'
@@ -82,10 +81,10 @@ class EventController extends AbstractController
     public function update(int $id, Request $request, SerializerInterface $serializer, EventRepository $eventRepository, EventTypeRepository $eventTypeRepository, EntityManagerInterface $entityManager, ValidatorInterface $validator)
     {
 
-        if (!$event = $eventRepository->find($id)/*$eventRepository->findBy(
-            ['id' => $id],
-            ['organizer' => $this->getUser()->getId()]
-        )*/) {
+        if (!$event = $eventRepository->findOneBy([
+            'id' => $id,
+            'organizer' => $this->getUser()->getId()
+        ])) {
             return $this->json([
                 'status' => 404,
                 'message' => 'Event not found'
@@ -127,10 +126,10 @@ class EventController extends AbstractController
     public function delete(int $id, EventRepository $eventRepository, EntityManagerInterface $entityManager)
     {
 
-        if (!$event = $eventRepository->find($id)/*$eventRepository->findBy(
-            ['id' => $id],
-            ['organizer' => $this->getUser()->getId()]
-        )*/) {
+        if (!$event = $eventRepository->findBy([
+            'id' => $id,
+            'organizer' => $this->getUser()->getId()
+        ])) {
             return $this->json([
                 'status' => 404,
                 'message' => 'Event not found'

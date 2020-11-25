@@ -26,6 +26,16 @@ class Invitation
     private int $id;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     *
+     * @Assert\NotBlank
+     * @Assert\Length(min=2, max=255)
+     *
+     * @Groups({"invitation:read"})
+     */
+    private string $email;
+
+    /**
      * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="invitations")
      *
      * @Assert\Valid
@@ -60,6 +70,16 @@ class Invitation
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
     }
 
     public function getEvent(): Event

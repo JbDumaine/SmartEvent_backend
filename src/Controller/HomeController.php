@@ -12,6 +12,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -75,5 +78,29 @@ class HomeController extends AbstractController
         $item = $itemRepository->find($id);
 
         return $this->json($item);
+    }
+
+    /**
+     * @Route("/email", name="email_test")
+     *
+     */
+    public function sendEmail(MailerInterface $mailer): Response
+    {
+        $email = (new Email())
+            ->from('test@gmail.com')
+            ->to('rmn976@hotmail.fr')
+            //->cc('cc@example.com')
+            //->bcc('bcc@example.com')
+            //->replyTo('fabien@example.com')
+            //->priority(Email::PRIORITY_HIGH)
+            ->subject('Test GenjyStudio!')
+            ->text('Coucou mon coeur!');
+        try {
+            $mailer->send($email);
+        } catch (TransportExceptionInterface $e) {
+            return $this->json($e->getMessage());
+        }
+
+        return $this->json('Email send !');
     }
 }
