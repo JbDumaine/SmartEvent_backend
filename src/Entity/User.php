@@ -46,11 +46,6 @@ class User implements UserInterface
     private string $password;
 
     /**
-    * @ORM\Column(type="string", unique=true, nullable=true)
-    */
-    private string $apiToken;
-
-    /**
      * @ORM\Column(name="first_name", type="string", length=50)
      *
      * @Assert\NotBlank()
@@ -183,15 +178,6 @@ class User implements UserInterface
         $this->password = $password;
 
         return $this;
-    }
-    public function getApiToken(): string
-    {
-        return $this->apiToken;
-    }
-
-    public function setApiToken(string $apiToken): void
-    {
-        $this->apiToken = $apiToken;
     }
 
     public function getFirstName(): string

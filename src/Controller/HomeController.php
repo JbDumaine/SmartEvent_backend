@@ -27,7 +27,7 @@ class HomeController extends AbstractController
      */
     public function index(): Response
     {
-        $encoders = [new JsonEncoder()];
+        /*$encoders = [new JsonEncoder()];
         $normalizers = [new ObjectNormalizer()];
 
         $serializer = new Serializer($normalizers, $encoders);
@@ -39,9 +39,9 @@ class HomeController extends AbstractController
         $event->setDescription('Mariage du roi');
         $event->setAddress('43 rue de l\'or');
 
-        $jsonEvent = $serializer->serialize($event, 'json');
+        $jsonEvent = $serializer->serialize($event, 'json');*/
 
-        return $this->json($event);
+        return $this->json('connecté');
     }
 
     /**

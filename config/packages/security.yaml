@@ -7,17 +7,24 @@ security:
         app_user_provider:
             entity:
                 class: App\Entity\User
-                property: apiToken
+                property: email
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
+            pattern: ^/login
             anonymous: true
             lazy: true
-            logout: ~
-            provider: app_user_provider
+            logout:
+                path: app_logout
 
+            guard:
+                authenticators:
+                    - App\Security\LoginFormAuthenticator
+        api:
+            pattern: ^/api/
+            provider: app_user_provider
             guard:
                 authenticators:
                     - App\Security\TokenAuthenticator
