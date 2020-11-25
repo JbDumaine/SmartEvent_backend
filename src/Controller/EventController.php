@@ -126,7 +126,7 @@ class EventController extends AbstractController
     public function delete(int $id, EventRepository $eventRepository, EntityManagerInterface $entityManager)
     {
 
-        if (!$event = $eventRepository->findBy([
+        if (!$event = $eventRepository->findOneBy([
             'id' => $id,
             'organizer' => $this->getUser()->getId()
         ])) {
