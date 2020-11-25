@@ -166,7 +166,7 @@ class InvitationController extends AbstractController
     }
 
     /**
-     * @Route("/api/invitation/{id}", name="api_invitation_delete", methods={"DELETE"})
+     * @Route("/api/invitation/{token}", name="api_invitation_delete", methods={"DELETE"})
      */
     public function delete(string $token, InvitationRepository $invitationRepository, EntityManagerInterface $entityManager)
     {
