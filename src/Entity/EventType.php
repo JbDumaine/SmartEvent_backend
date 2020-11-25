@@ -26,6 +26,7 @@ class EventType
      * @Assert\Length(min=2, max=255)
      *
      * @Groups("event:read")
+     * @Groups("invitation:read")
      */
     private string $name;
 

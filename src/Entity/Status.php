@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\StatusRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -23,6 +24,8 @@ class Status
      *
      * @Assert\NotBlank()
      * @Assert\Length(min=2, max=255)
+     *
+     * @Groups("invitation:read")
      */
     private string $name;
 

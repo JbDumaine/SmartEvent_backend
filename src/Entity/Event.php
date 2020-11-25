@@ -7,6 +7,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -27,26 +28,27 @@ class Event
     /**
      * @ORM\Column(name="event_title", type="string", length=255)
      *
-     * @Assert\NotBlank()
      * @Assert\Length(min=2, max=255)
+     * @Assert\NotBlank
      *
-     * @Groups("event:read")
+     * @Groups({"event:read", "invitation:read"})
      */
     private string $title;
 
     /**
      * @ORM\Column(name="event_date", type="datetime")
      *
-     * @Assert\NotBlank()
+     * @Assert\Range(min="now")
+     * @Assert\NotBlank
      *
-     * @Groups("event:read")
+     * @Groups({"event:read", "invitation:read"})
      */
     private DateTime $eventDate;
 
     /**
      * @ORM\Column(name="event_description", type="text")
      *
-     * @Assert\NotBlank()
+     * @Assert\NotBlank
      *
      * @Groups("event:read")
      */
@@ -64,9 +66,9 @@ class Event
     /**
      * @ORM\Column(name="event_address", type="text")
      *
-     * @Assert\NotBlank()
+     * @Assert\NotBlank
      *
-     * @Groups("event:read")
+     * @Groups({"event:read", "invitation:read"})
      */
     private string $address;
 
@@ -77,20 +79,20 @@ class Event
     /**
      * @ORM\ManyToOne(targetEntity="User", inversedBy="organizedEvents")
      *
-     * @Assert\NotBlank()
-     * @Assert\Valid()
+     * @Assert\NotBlank
+     * @Assert\Valid
      *
-     * @Groups("event:read")
+     * @Groups({"event:read", "invitation:read"})
      */
-    private User $organizer;
+    private UserInterface $organizer;
 
     /**
      * @ORM\ManyToOne(targetEntity="EventType")
      *
-     * @Assert\NotBlank()
-     * @Assert\Valid()
+     * @Assert\NotBlank
+     * @Assert\Valid
      *
-     * @Groups("event:read")
+     * @Groups({"event:read", "invitation:read"})
      */
     private EventType $type;
 
@@ -102,9 +104,9 @@ class Event
     private Collection $invitations;
 
     /**
-     * @ORM\OneToMany(targetEntity=EventsItems::class, mappedBy="event", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=EventsItems::class, mappedBy="event", cascade={"remove"}, orphanRemoval=true)
      */
-    private $items;
+    private Collection $items;
 
     public function __construct() {
         $this->picturePath = null;
@@ -177,12 +179,12 @@ class Event
         return $this;
     }
 
-    public function getOrganizer(): User
+    public function getOrganizer(): UserInterface
     {
         return $this->organizer;
     }
 
-    public function setOrganizer(User $organizer): void
+    public function setOrganizer(UserInterface $organizer): void
     {
         $this->organizer = $organizer;
     }

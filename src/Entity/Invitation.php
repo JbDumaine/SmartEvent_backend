@@ -4,9 +4,16 @@ namespace App\Entity;
 
 use App\Repository\InvitationRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ * @ORM\Table(
+ *    uniqueConstraints={
+ *      @ORM\UniqueConstraint(name="invitation_invitation_token", columns={"invitation_token"})
+ *   }
+ * )
  * @ORM\Entity(repositoryClass=InvitationRepository::class)
  */
 class Invitation
@@ -21,28 +28,31 @@ class Invitation
     /**
      * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="invitations")
      *
-     * @Assert\Valid()
+     * @Assert\Valid
+     *
+     * @Groups({"invitation:read"})
      */
     private Event $event;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="invitations")
      *
-     * @Assert\Valid()
+     * @Assert\Valid
      */
-    private User $guest;
+    private ?User $guest;
 
     /**
      * @ORM\ManyToOne(targetEntity=Status::class)
      *
-     * @Assert\Valid()
+     * @Assert\Valid
+     * @Groups("invitation:read")
      */
     private Status $status;
 
     /**
      * @ORM\Column(name="invitation_token", type="string", length=255)
      *
-     * @Assert\NotBlank()
+     * @Assert\NotBlank
      * @Assert\Length(min=2, max=255)
      */
     private string $invitationToken;
@@ -64,12 +74,12 @@ class Invitation
         return $this;
     }
 
-    public function getGuest(): User
+    public function getGuest(): ?UserInterface
     {
         return $this->guest;
     }
 
-    public function setGuest(User $guest): self
+    public function setGuest(?UserInterface $guest): self
     {
         $this->guest = $guest;
 
