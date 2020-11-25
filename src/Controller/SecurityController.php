@@ -71,7 +71,7 @@ class SecurityController extends AbstractController
             return $this->json('Email déjà existant');
         }
 
-        return $this->json($user, 201, [], ['groups' => 'event:read']);
+        return $this->json($user, 201, [], ['groups' => 'user:read']);
         } catch (NotEncodableValueException $e) {
             return $this->json([
             'status' => 400,

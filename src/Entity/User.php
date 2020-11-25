@@ -20,7 +20,7 @@ class User implements UserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      *
-     * @Groups({"event:read", "invitation:read"})
+     * @Groups({"event:read", "invitation:read", "user:read"})
      */
     private int $id;
 
@@ -29,6 +29,8 @@ class User implements UserInterface
      *
      * @Assert\NotBlank()
      * @Assert\Length(min=2, max=180)
+     *
+     * @Groups({"user:read"})
      */
     private string $email;
 
@@ -51,7 +53,7 @@ class User implements UserInterface
      * @Assert\NotBlank()
      * @Assert\Length(min=2, max=50)
      *
-     * @Groups({"event:read", "invitation:read"})
+     * @Groups({"event:read", "invitation:read", "user:read"})
      */
     private string $firstName;
 
@@ -61,7 +63,7 @@ class User implements UserInterface
      * @Assert\NotBlank()
      * @Assert\Length(min=2, max=100)
      *
-     * @Groups({"event:read", "invitation:read"})
+     * @Groups({"event:read", "invitation:read", "user:read"})
      */
     private string $lastName;
 
@@ -71,7 +73,7 @@ class User implements UserInterface
      * @Assert\NotBlank()
      * @Assert\Length(min=2, max=15)
      *
-     * @Groups({"event:read", "invitation:read"})
+     * @Groups({"event:read", "invitation:read", "user:read"})
      */
     private string $phoneNumber;
 
