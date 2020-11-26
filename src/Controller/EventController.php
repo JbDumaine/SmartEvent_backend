@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class EventController extends AbstractController
 {
     /**
-     * @Route("/api/event", name="api_event_index", methods={"GET"})
+     * @Route("/api/event", name="api_event_index", methods={"GET, OPTIONS"})
      */
     public function all(): Response
     {
