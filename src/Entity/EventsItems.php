@@ -15,6 +15,8 @@ class EventsItems
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * 
+     * @Groups("eventItem:read")
      */
     private int $id;
 
