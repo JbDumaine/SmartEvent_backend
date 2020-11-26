@@ -139,6 +139,6 @@ class EventController extends AbstractController
         $entityManager->remove($event);
         $entityManager->flush();
 
-        return $this->json($eventRepository->findAll(), 200, [], ['groups' => 'event:read']);
+        return $this->json('Event deleted', 200);
     }
 }
