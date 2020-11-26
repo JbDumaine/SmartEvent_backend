@@ -187,7 +187,7 @@ class InvitationController extends AbstractController
         $entityManager->remove($invitation);
         $entityManager->flush();
 
-        return $this->json($invitationRepository->findAll(), 200, [], ['groups' => 'invitation:read']);
+        return $this->json('Invitation deleted', 200);
     }
 
     // Route pour la liste des invitations d'un utilisateur
