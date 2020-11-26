@@ -4,8 +4,12 @@
 namespace App\Security;
 
 
+use App\Repository\AuthAccessTokensRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -17,10 +21,14 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 class TokenAuthenticator extends AbstractGuardAuthenticator
 {
     private EntityManagerInterface $em;
+    private AuthAccessTokensRepository $authAccessTokensRepository;
+    private UserRepository $userRepository;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, AuthAccessTokensRepository $authAccessTokensRepository, UserRepository $userRepository)
     {
         $this->em = $em;
+        $this->authAccessTokensRepository = $authAccessTokensRepository;
+        $this->userRepository = $userRepository;
     }
 
 
@@ -32,7 +40,15 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
 
     public function getCredentials(Request $request)
     {
-        return $request->headers->get('X-AUTH-TOKEN');
+        $jwt = $request->headers->get('X-AUTH-TOKEN');
+
+        try {
+            $response = $this->authAccessTokensRepository->find($jwt)->getUserId();
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+
+        return $this->userRepository->find($response)->getEmail();
     }
 
 
@@ -44,7 +60,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
             return null;
         }
 
-        // Dans SmartEvent, le Username est l'ApiToken
+        // Dans SmartEvent, le Username est l'email
         return $userProvider->loadUserByUsername($credentials);
     }
 
@@ -54,7 +70,6 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
         return true;
     }
 
-
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
     {
         return null;
@@ -63,11 +78,12 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        $data = [
-            'message' => 'T\'as pas le droit'//strtr($exception->getMessageKey(), $exception->getMessageData())
+        /*$data = [
+            'message' => 'T\'as pas le droit'
         ];
 
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);*/
+        return new RedirectResponse('/login');
     }
 
 

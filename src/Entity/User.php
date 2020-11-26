@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,6 +19,8 @@ class User implements UserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     *
+     * @Groups({"event:read", "invitation:read", "user:read"})
      */
     private int $id;
 
@@ -26,6 +29,8 @@ class User implements UserInterface
      *
      * @Assert\NotBlank()
      * @Assert\Length(min=2, max=180)
+     *
+     * @Groups({"user:read"})
      */
     private string $email;
 
@@ -43,15 +48,12 @@ class User implements UserInterface
     private string $password;
 
     /**
-    * @ORM\Column(type="string", unique=true, nullable=true)
-    */
-    private string $apiToken;
-
-    /**
      * @ORM\Column(name="first_name", type="string", length=50)
      *
      * @Assert\NotBlank()
      * @Assert\Length(min=2, max=50)
+     *
+     * @Groups({"event:read", "invitation:read", "user:read"})
      */
     private string $firstName;
 
@@ -60,6 +62,8 @@ class User implements UserInterface
      *
      * @Assert\NotBlank()
      * @Assert\Length(min=2, max=100)
+     *
+     * @Groups({"event:read", "invitation:read", "user:read"})
      */
     private string $lastName;
 
@@ -68,6 +72,8 @@ class User implements UserInterface
      *
      * @Assert\NotBlank()
      * @Assert\Length(min=2, max=15)
+     *
+     * @Groups({"event:read", "invitation:read", "user:read"})
      */
     private string $phoneNumber;
 
@@ -76,7 +82,7 @@ class User implements UserInterface
      *
      * @Assert\Length(min=2, max=255)
      */
-    private string $avatarPath;
+    private ?string $avatarPath;
 
     /***************************************************************************************
      * Relations avec les autres entités
@@ -175,15 +181,6 @@ class User implements UserInterface
 
         return $this;
     }
-    public function getApiToken(): string
-    {
-        return $this->apiToken;
-    }
-
-    public function setApiToken(string $apiToken): void
-    {
-        $this->apiToken = $apiToken;
-    }
 
     public function getFirstName(): string
     {
@@ -215,12 +212,12 @@ class User implements UserInterface
         $this->phoneNumber = $phoneNumber;
     }
 
-    public function getAvatarPath(): string
+    public function getAvatarPath(): ?string
     {
         return $this->avatarPath;
     }
 
-    public function setAvatarPath(string $avatarPath): void
+    public function setAvatarPath(?string $avatarPath): void
     {
         $this->avatarPath = $avatarPath;
     }
