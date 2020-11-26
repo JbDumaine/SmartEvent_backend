@@ -48,7 +48,8 @@ class SecurityController extends AbstractController
      */
     public function register(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, ValidatorInterface $validator, UserPasswordEncoderInterface $passwordEncoder)
     {
-        $jsonGet = $request->getContent();
+        return $this->json('JB t\'es le meilleur');
+        /*$jsonGet = $request->getContent();
 
         try {
             $user = $serializer->deserialize($jsonGet, User::class, 'json');
@@ -77,6 +78,6 @@ class SecurityController extends AbstractController
             'status' => 400,
             'message' => $e->getMessage()
             ], 400);
-        }
+        }*/
     }
 }
