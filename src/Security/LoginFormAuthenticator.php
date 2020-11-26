@@ -129,9 +129,6 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements P
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        $request->getSession()->set(
-            Security::AUTHENTICATION_ERROR,
-            'Identifiants invalides'
-        );
+        return new JsonResponse('Invalid credentials', 401);
     }
 }
