@@ -30,14 +30,20 @@ class InvitationController extends AbstractController
      */
     public function all(int $id, InvitationRepository $invitationRepository, EventRepository $eventRepository): Response
     {
-        if (!$invitations = $invitationRepository->findBy(['event' => $eventRepository->findOneBy([
+        if (!$event = $eventRepository->findOneBy([
             'id' => $id,
             'organizer' => $this->getUser()->getId()
-        ])])) {
+        ])) {
             return $this->json([
                 'status' => 404,
                 'message' => 'Event not found'
             ], 404);
+        }
+        if (!$invitations = $invitationRepository->findBy(['event' => $event])) {
+            return $this->json([
+                'status' => 204,
+                'message' => 'No invitations'
+            ], 204);
         }
         return $this->json($invitations, 200, [], ['groups' => 'invitation:read']);
     }

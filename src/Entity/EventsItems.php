@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\EventsItemsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=EventsItemsRepository::class)
@@ -20,17 +21,23 @@ class EventsItems
     /**
      * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="item")
      * @ORM\JoinColumn(nullable=false)
+     *
+     * @Groups("eventItem:read")
      */
     private Event $event;
 
     /**
      * @ORM\ManyToOne(targetEntity=Item::class)
      * @ORM\JoinColumn(nullable=false)
+     *
+     * @Groups("eventItem:read")
      */
     private Item $item;
 
     /**
      * @ORM\Column(type="boolean")
+     *
+     * @Groups("eventItem:read")
      */
     private bool $isChecked;
 

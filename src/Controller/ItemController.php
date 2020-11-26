@@ -63,15 +63,60 @@ class ItemController extends AbstractController
      */
     public function all(int $id, EventsItemsRepository $eventsItemsRepository, EventRepository $eventRepository): Response
     {
-        if (!$items = $eventsItemsRepository->findBy(['event' => $eventRepository->findOneBy([
+        if (!$event = $eventRepository->findOneBy([
             'id' => $id,
             'organizer' => $this->getUser()->getId()
-        ])])) {
+        ])) {
             return $this->json([
                 'status' => 404,
                 'message' => 'Event not found'
             ], 404);
         }
-        return $this->json($items, 200, [], ['groups' => 'invitation:read']);
+        if (!$items = $eventsItemsRepository->findBy(['event' => $event])) {
+            return $this->json([
+                'status' => 204,
+                'message' => 'No items'
+            ], 204);
+        }
+        return $this->json($items, 200, [], ['groups' => 'eventItem:read']);
+    }
+
+    /**
+     * @Route("/api/item/event/{id}", name="api_item_update", methods={"PUT"})
+     */
+    public function update(int $id, EventsItemsRepository $eventsItemsRepository, EntityManagerInterface $entityManager): Response
+    {
+        if (!$item = $eventsItemsRepository->find($id)) {
+            return $this->json([
+                'status' => 404,
+                'message' => 'Items not found'
+            ], 404);
+        }
+
+        if (!$item->getIsChecked()) {
+            $item->setIsChecked(true);
+        }
+
+        $entityManager->persist($item);
+        $entityManager->flush();
+        return $this->json($item, 200, [], ['groups' => 'eventItem:read']);
+    }
+
+    /**
+     * @Route("/api/item/event/{id}", name="api_item_delete", methods={"DELETE"})
+     */
+    public function delete(int $id, EventsItemsRepository $eventsItemsRepository, EntityManagerInterface $entityManager): Response
+    {
+        if (!$item = $eventsItemsRepository->find($id)) {
+            return $this->json([
+                'status' => 404,
+                'message' => 'Items not found'
+            ], 404);
+        }
+
+        $entityManager->remove($item);
+        $entityManager->flush();
+
+        return $this->json('Item deleted', 200, []);
     }
 }

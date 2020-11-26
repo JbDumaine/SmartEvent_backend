@@ -7,6 +7,7 @@ namespace App\Security;
 use App\Repository\AuthAccessTokensRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,15 +40,15 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
 
     public function getCredentials(Request $request)
     {
-        // $key = 'example_key';
-        if (!$jwt = $request->headers->get('X-AUTH-TOKEN')) {
-            return $jwt;
+        $jwt = $request->headers->get('X-AUTH-TOKEN');
+
+        try {
+            $response = $this->authAccessTokensRepository->find($jwt)->getUserId();
+        } catch (Exception $e) {
+            return $e->getMessage();
         }
 
-        // $userId = JWT::decode($jwt, $key, array('HS256'))->user;
-
-        return $this->userRepository->find($this->authAccessTokensRepository->find($jwt)->getUserId())->getEmail();
-
+        return $this->userRepository->find($response)->getEmail();
     }
 
 

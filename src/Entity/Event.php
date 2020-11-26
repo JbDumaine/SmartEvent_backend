@@ -31,7 +31,7 @@ class Event
      * @Assert\Length(min=2, max=255)
      * @Assert\NotBlank
      *
-     * @Groups({"event:read", "invitation:read"})
+     * @Groups({"event:read", "invitation:read", "eventItem:read"})
      */
     private string $title;
 
@@ -41,7 +41,7 @@ class Event
      * @Assert\Range(min="now")
      * @Assert\NotBlank
      *
-     * @Groups({"event:read", "invitation:read"})
+     * @Groups({"event:read", "invitation:read", "eventItem:read"})
      */
     private DateTime $eventDate;
 
